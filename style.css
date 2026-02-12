@@ -1,0 +1,114 @@
+/* --- 1. DEFINISI WARNA (SEMANTIC PALETTE) --- */
+:root {
+    --primary-color: #4361ee;       /* Biru Utama */
+    --success-color: #10b981;       /* Hijau (Bagus/Untung) */
+    --warning-color: #f59e0b;       /* Kuning (Waspada) */
+    --danger-color: #ef4444;        /* Merah (Buruk/Rugi) */
+    --neutral-bg: #f8f9fa;          /* Abu-abu Background */
+    --text-dark: #1e293b;           /* Hitam Teks */
+    --text-muted: #64748b;          /* Abu-abu Teks */
+}
+
+.stApp {
+    background-color: #f0f2f5;
+}
+
+/* --- 2. GAYA KARTU KPI (YANG HILANG SEBELUMNYA) --- */
+.kpi-card {
+    background-color: #ffffff !important; /* Wajib Putih */
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 15px;
+    /* Efek Bayangan agar terlihat timbul (Card) */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+    border-left: 5px solid var(--primary-color); /* Default Border Biru */
+    transition: transform 0.2s;
+}
+
+.kpi-card:hover {
+    transform: translateY(-3px); /* Efek naik saat mouse hover */
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+}
+
+.kpi-title {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+}
+
+.kpi-value {
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--text-dark);
+    margin-bottom: 5px;
+}
+
+.kpi-sub {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+/* Variasi Warna Border (Semantic) */
+.border-primary { border-left-color: var(--primary-color) !important; }
+.border-success { border-left-color: var(--success-color) !important; }
+.border-danger { border-left-color: var(--danger-color) !important; }
+.border-warning { border-left-color: var(--warning-color) !important; }
+
+/* Text Colors */
+.text-success { color: var(--success-color); font-weight: bold; }
+.text-danger { color: var(--danger-color); font-weight: bold; }
+
+/* --- 3. GAYA TABEL (MODERN) --- */
+.styled-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin: 20px 0;
+    font-size: 0.9em;
+    font-family: sans-serif;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: white;
+}
+
+.styled-table thead tr {
+    background-color: var(--primary-color);
+    color: white;
+    text-align: left;
+}
+
+.styled-table th, .styled-table td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.styled-table tbody tr:nth-of-type(even) {
+    background-color: #f9fafb;
+}
+
+.styled-table tbody tr:last-of-type {
+    border-bottom: 3px solid var(--primary-color);
+}
+
+/* Badge Status di Tabel */
+.badge-diff-pos {
+    background-color: #d1fae5; color: #065f46;
+    padding: 4px 8px; border-radius: 12px; font-size: 0.8em; font-weight: bold;
+}
+.badge-diff-neg {
+    background-color: #fee2e2; color: #991b1b;
+    padding: 4px 8px; border-radius: 12px; font-size: 0.8em; font-weight: bold;
+}
+
+/* Gaya Khusus Kotak Info (Halaman Input) */
+.info-box {
+    background-color: #fffbeb;
+    border-left: 5px solid #f59e0b;
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
