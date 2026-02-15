@@ -28,6 +28,17 @@ def to_excel(df):
 
 def show(model, df_historis, tanggal_pilihan, input_suhu, input_hujan):
     st.markdown(f"## Dashboard Prediksi")
+    
+    # --- PENJELASAN HALAMAN ---
+    st.markdown("""
+    <div style="background-color: #f1f5f9; border-left: 5px solid #009688; padding: 15px; border-radius: 5px; margin-bottom: 25px;">
+        <p style="margin:0; color: #334155; font-size: 1rem;">
+            <b>Panduan Dashboard:</b> Halaman ini menyajikan ringkasan prediksi omzet. 
+            Gunakan grafik di bawah untuk melihat estimasi total pendapatan per tanggal.
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+
     st.write(f"Tanggal Input: **{tanggal_pilihan.strftime('%d-%m-%Y')}**")
     
     if 'hasil_prediksi' not in st.session_state:
@@ -87,10 +98,29 @@ def show(model, df_historis, tanggal_pilihan, input_suhu, input_hujan):
                 use_container_width=True
             )
 
+        # 2. DOWNLOAD CSV
+        csv_data = df_forecast.to_csv(index=False).encode('utf-8')
+        file_name_csv = f"Data_Mentah_{df_forecast['Tanggal'].iloc[0].strftime('%d%b%Y')}.csv"
+        
+        with col_dl2:
+            st.download_button(
+                label="Unduh CSV",
+                data=csv_data,
+                file_name=file_name_csv,
+                mime="text/csv",
+                use_container_width=True
+            )
             
+        # 3. PRINT PDF
+        with col_dl3:
+            if st.button("Cetak PDF (Grafik)", use_container_width=True):
+                components.html("<script>window.print()</script>", height=0, width=0)
+        
         st.markdown("---")
         
-        # --- BAGIAN GRAFIK ---
+        # =========================================================
+        # TAMPILAN 1: PER HARI
+        # =========================================================
         if "Per Hari" in mode_current:
             row = df_forecast.iloc[0]
             st.markdown(f"### Analisis Per Hari: {row['Tanggal'].strftime('%A, %d %B %Y')}")
@@ -120,6 +150,9 @@ def show(model, df_historis, tanggal_pilihan, input_suhu, input_hujan):
             fig.update_layout(plot_bgcolor='white', height=400, yaxis=dict(title='Rupiah (Rp)', gridcolor=COLOR_GRID), showlegend=False)
             st.plotly_chart(fig, use_container_width=True)
 
+        # =========================================================
+        # TAMPILAN 2: PER MINGGU
+        # =========================================================
         elif "Per Minggu" in mode_current:
             tgl_awal = df_forecast['Tanggal'].iloc[0].strftime('%d %b')
             tgl_akhir = df_forecast['Tanggal'].iloc[-1].strftime('%d %b %Y')
@@ -137,48 +170,19 @@ def show(model, df_historis, tanggal_pilihan, input_suhu, input_hujan):
             st.write("")
             st.markdown("### Tren Omzet Harian (Senin - Minggu)")
             
-            # --- MENGGUNAKAN GROUPED BAR CHART ---
             fig = go.Figure()
+            fig.add_trace(go.Bar(x=df_forecast['Hari_Nama'], y=df_forecast['Prediksi Pagi'], name='Pagi', marker_color=COLOR_PAGI))
+            fig.add_trace(go.Bar(x=df_forecast['Hari_Nama'], y=df_forecast['Prediksi Siang'], name='Siang', marker_color=COLOR_SIANG))
+            fig.add_trace(go.Bar(x=df_forecast['Hari_Nama'], y=df_forecast['Prediksi Malam'], name='Malam', marker_color=COLOR_MALAM))
             
-            # 1. Batang Pagi
-            fig.add_trace(go.Bar(
-                x=df_forecast['Hari_Nama'], 
-                y=df_forecast['Prediksi Pagi'], 
-                name='Pagi', 
-                marker_color=COLOR_PAGI,
-                hovertemplate='Pagi: <b>Rp %{y:,.0f}</b><extra></extra>'
-            ))
-            
-            # 2. Batang Siang
-            fig.add_trace(go.Bar(
-                x=df_forecast['Hari_Nama'], 
-                y=df_forecast['Prediksi Siang'], 
-                name='Siang', 
-                marker_color=COLOR_SIANG,
-                hovertemplate='Siang: <b>Rp %{y:,.0f}</b><extra></extra>'
-            ))
-            
-            # 3. Batang Malam
-            fig.add_trace(go.Bar(
-                x=df_forecast['Hari_Nama'], 
-                y=df_forecast['Prediksi Malam'], 
-                name='Malam', 
-                marker_color=COLOR_MALAM,
-                hovertemplate='Malam: <b>Rp %{y:,.0f}</b><extra></extra>'
-            ))
-            
-            # 4. Garis Total (Overlay)
             fig.add_trace(go.Scatter(
-                x=df_forecast['Hari_Nama'], 
-                y=df_forecast['Prediksi Total'], 
-                mode='lines+markers', 
-                name='TOTAL', 
-                line=dict(color=COLOR_TOTAL, width=3, dash='dot'),
-                hovertemplate='Total: <b>Rp %{y:,.0f}</b><extra></extra>'
+                x=df_forecast['Hari_Nama'], y=df_forecast['Prediksi Total'],
+                mode='lines+markers', name='TOTAL',
+                line=dict(color=COLOR_TOTAL, width=3, dash='dot')
             ))
 
             fig.update_layout(
-                barmode='group', # Grouped Bar agar berdampingan
+                barmode='group', 
                 hovermode="x unified", 
                 plot_bgcolor='white', 
                 height=450, 
@@ -194,6 +198,9 @@ def show(model, df_historis, tanggal_pilihan, input_suhu, input_hujan):
                     'Prediksi Malam': "Rp {:,.0f}", 'Prediksi Total': "Rp {:,.0f}"
                 }), use_container_width=True)
 
+        # =========================================================
+        # TAMPILAN 3: PER BULAN (VERTIKAL BAR CHART - SKALA 10M+)
+        # =========================================================
         elif "Per Bulan" in mode_current:
             bulan_nama = df_forecast['Bulan_Nama'].iloc[0]
             tahun = df_forecast['Tahun'].iloc[0]
@@ -211,13 +218,39 @@ def show(model, df_historis, tanggal_pilihan, input_suhu, input_hujan):
             st.write("")
             st.markdown(f"### Tren Omzet Harian ({bulan_nama})")
             
+            # --- GRAFIK BATANG VERTIKAL TOTAL OMZET ---
             fig = go.Figure()
-            fig.add_trace(go.Scatter(x=df_forecast['Tanggal'], y=df_forecast['Prediksi Pagi'], name='Pagi', stackgroup='one', line=dict(width=0), marker=dict(color=COLOR_PAGI)))
-            fig.add_trace(go.Scatter(x=df_forecast['Tanggal'], y=df_forecast['Prediksi Siang'], name='Siang', stackgroup='one', line=dict(width=0), marker=dict(color=COLOR_SIANG)))
-            fig.add_trace(go.Scatter(x=df_forecast['Tanggal'], y=df_forecast['Prediksi Malam'], name='Malam', stackgroup='one', line=dict(width=0), marker=dict(color=COLOR_MALAM)))
-            fig.add_trace(go.Scatter(x=df_forecast['Tanggal'], y=df_forecast['Prediksi Total'], mode='lines', name='Total Harian', line=dict(color=COLOR_TOTAL, width=3)))
-
-            fig.update_layout(hovermode="x unified", plot_bgcolor='white', height=500, xaxis=dict(showgrid=False, rangeslider=dict(visible=True), type="date"), yaxis=dict(gridcolor=COLOR_GRID, tickprefix="Rp "), legend=dict(orientation="h", y=1.1))
+            
+            # Batang Total Omzet Harian
+            fig.add_trace(go.Bar(
+                x=df_forecast['Tanggal'], 
+                y=df_forecast['Prediksi Total'], 
+                name='Total Omzet', 
+                marker_color=COLOR_TOTAL, # Warna Hijau Tosca Vmedis
+                hovertemplate='Tanggal: %{x|%d %b %Y}<br>Total: <b>Rp %{y:,.0f}</b><extra></extra>'
+            ))
+            
+            # Menghitung batas atas untuk grafik agar proporsional
+            max_omzet = df_forecast['Prediksi Total'].max()
+            
+            fig.update_layout(
+                plot_bgcolor='white',
+                height=500,
+                xaxis=dict(
+                    showgrid=False, 
+                    tickformat="%d %b", # Format tanggal sumbu X (contoh: 01 Jan)
+                    title="Tanggal"
+                ),
+                yaxis=dict(
+                    gridcolor=COLOR_GRID, 
+                    tickprefix="Rp ", 
+                    title="Total Omzet (Rp)",
+                    # --- PENGATURAN SKALA ---
+                    # Memulai sumbu Y dari 10 Juta agar fluktuasi terlihat jelas
+                    range=[10000000, max_omzet * 1.00] 
+                ),
+                showlegend=False
+            )
             st.plotly_chart(fig, use_container_width=True)
             
             with st.expander("Lihat Rincian Harian"):
@@ -226,6 +259,9 @@ def show(model, df_historis, tanggal_pilihan, input_suhu, input_hujan):
                     'Prediksi Malam': "Rp {:,.0f}", 'Prediksi Total': "Rp {:,.0f}"
                 }), use_container_width=True)
 
+        # =========================================================
+        # TAMPILAN 4: PER TAHUN
+        # =========================================================
         else: 
             tahun = df_forecast['Tahun'].iloc[0]
             st.markdown(f"### Analisis Per Tahun: {tahun}")

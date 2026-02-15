@@ -35,12 +35,12 @@ def normalize_column_names(df):
     return df
 
 def show():
-    st.markdown("## 📥 Input Data Histori (Smart Detect)")
+    st.markdown("##  Input Data Histori")
     st.write("Unggah file Excel untuk memperbarui basis data prediksi sistem.")
     
     # Kotak Informasi
     st.info("""
-    **Tips:** Sistem sekarang otomatis mendeteksi kolom meskipun nama kolom Anda sedikit berbeda (misal: "suhu" kecil atau "Hujan (mm)").
+    **Tips:** Unggah file Excel untuk memperbarui basis data prediksi sistem.
     """)
 
     # Komponen File Uploader
@@ -76,7 +76,7 @@ def show():
                 df_new['Tanggal'] = pd.to_datetime(df_new['Tanggal'])
                 
                 # Preview Data
-                st.markdown("### ✅ Data Valid & Siap Disimpan")
+                st.markdown("###  Data Valid & Siap Disimpan")
                 st.dataframe(df_new.head(), use_container_width=True)
 
                 if st.button("Simpan Data", type="primary"):
@@ -89,7 +89,7 @@ def show():
                     time.sleep(1)
                     st.rerun()
             else:
-                st.error(f"❌ Masih ada kolom yang hilang: {', '.join(missing_cols)}")
+                st.error(f" Masih ada kolom yang hilang: {', '.join(missing_cols)}")
                 st.warning("Coba ubah nama header di Excel Anda agar lebih jelas (Contoh: 'Suhu', 'Hujan', 'Omzet Pagi').")
                 
         except Exception as e:

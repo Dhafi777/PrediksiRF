@@ -3,12 +3,12 @@ import pandas as pd
 import utils
 
 def show(df):
-    st.markdown("## 📂 Data Historis Penjualan")
+    st.markdown("##  Data Historis Penjualan")
     st.write("Berikut adalah basis data yang saat ini tersimpan dalam sistem dan digunakan untuk proses prediksi.")
     st.markdown("---")
     
     if df is not None:
-        # --- RINGKASAN DATA (MODERN CARDS) ---
+        # --- RINGKASAN DATA ---
         col1, col2, col3 = st.columns(3)
         
         with col1:
@@ -27,7 +27,7 @@ def show(df):
                 st.write("-")
         
         # --- TABEL UTAMA ---
-        st.markdown("### 📄 Tabel Detail")
+        st.markdown("###  Tabel Detail")
         
         sort_order = st.radio("Urutkan Data:", ["Terbaru ke Terlama", "Terlama ke Terbaru"], horizontal=True)
         

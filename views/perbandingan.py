@@ -6,6 +6,18 @@ import utils  # Import helper format_rupiah & create_card
 
 def show(model, df_historis):
     st.markdown("##  Komparasi Data Aktual banding Prediksi")
+    
+    # --- PENJELASAN HALAMAN (DENGAN STYLE KOTAK) ---
+    st.markdown("""
+    <div style="background-color: #f1f5f9; border-left: 5px solid #009688; padding: 15px; border-radius: 5px; margin-bottom: 25px;">
+        <p style="margin:0; color: #334155; font-size: 1rem;">
+            <b>Panduan Evaluasi:</b> Halaman ini digunakan untuk mengukur kinerja 'kecerdasan' sistem. 
+            Anda dapat membandingkan data penjualan asli (Aktual) dengan hasil tebakan sistem (Prediksi) untuk memastikan seberapa akurat model dalam meramal omzet apotek.
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+    # -----------------------------------------------
+    
     st.write("Halaman ini menyajikan evaluasi kinerja model prediksi dengan membandingkan data penjualan aktual terhadap hasil estimasi model Random Forest.")
     st.markdown("---")
 

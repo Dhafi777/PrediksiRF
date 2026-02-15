@@ -5,7 +5,7 @@ import plotly.graph_objects as go
 import plotly.express as px
 from plotly.subplots import make_subplots
 
-# --- KONFIGURASI WARNA (Vmedis Style) ---
+# --- KONFIGURASI WARNA ---
 COLOR_PAGI  = '#f1c40f'  # Kuning
 COLOR_SIANG = '#e67e22'  # Oranye
 COLOR_MALAM = '#2980b9'  # Biru
@@ -17,11 +17,16 @@ COLOR_GRID  = '#ecf0f1'  # Abu grid
 def show(model, df_historis, tanggal_pilihan, input_suhu, input_hujan, mape_text):
     st.markdown(f"## Visualisasi Tren & Cuaca")
     
-    # --- PENJELASAN SINGKAT & BAKU ---
+    # --- PENJELASAN HALAMAN (DENGAN STYLE KOTAK) ---
     st.markdown("""
-    Halaman ini menyajikan analisis grafis untuk membantu Anda memahami pola penjualan selama **30 hari ke depan**.
-    Anda dapat melihat tren pergerakan omzet per shift, serta hubungan antara kondisi cuaca (suhu dan curah hujan) terhadap total pendapatan apotek.
-    """)
+    <div style="background-color: #f1f5f9; border-left: 5px solid #009688; padding: 15px; border-radius: 5px; margin-bottom: 25px;">
+        <p style="margin:0; color: #334155; font-size: 1rem;">
+            <b>Panduan Visualisasi:</b> Halaman ini menyajikan analisis grafis untuk membantu Anda memahami pola penjualan selama <b>30 hari ke depan</b>.
+            Anda dapat melihat tren pergerakan omzet per shift, serta hubungan antara kondisi cuaca (suhu dan curah hujan) terhadap total pendapatan apotek.
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+    # -----------------------------------------------
     
     st.info(f"Proyeksi analisis dimulai dari tanggal: **{tanggal_pilihan.strftime('%d-%m-%Y')}**")
     
