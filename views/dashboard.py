@@ -8,8 +8,6 @@ def show(model, df_historis, tanggal_pilihan, input_suhu, input_hujan):
     st.write(f"Start Prediksi: **{tanggal_pilihan.strftime('%d-%m-%Y')}**")
     
     # --- PILIH TIPE PREDIKSI ---
-    # Harian: Lihat detail per tanggal
-    # Bulanan: Lihat rekap per bulan (Maret, April, Mei...)
     mode_prediksi = st.selectbox("Pilih Tampilan:", ["📅 Harian (Detail 30 Hari)", "🗓️ Bulanan (Rekap 12 Bulan)"])
     
     st.markdown("---")
@@ -17,26 +15,21 @@ def show(model, df_historis, tanggal_pilihan, input_suhu, input_hujan):
     if st.button("Jalankan Prediksi 🚀", type="primary"):
         
         with st.spinner("Sedang melakukan forecasting..."):
-            # STRATEGI:
-            # Apapun pilihannya, kita tetap generate data harian dulu.
-            # Jika Harian -> Ambil 30 hari.
-            # Jika Bulanan -> Ambil 365 hari, lalu kita group by Bulan.
-            
+            # Tentukan durasi prediksi
             if "Harian" in mode_prediksi:
                 days_to_predict = 30
             else:
-                days_to_predict = 365 # Setahun penuh agar dapat bulan-bulan ke depan
+                days_to_predict = 365 # Setahun penuh untuk dapat data bulanan
             
-            # 1. Generate Data Harian
+            # Generate Data (Cepat karena sudah dioptimasi)
             df_forecast = utils.generate_forecast_data(model, df_historis, tanggal_pilihan, input_suhu, input_hujan, days=days_to_predict)
             
-        # --- TAMPILAN 1: REKAP BULANAN (SESUAI REQUEST ANDA) ---
+        # --- TAMPILAN 1: REKAP BULANAN (GRAFIK BATANG) ---
         if "Bulanan" in mode_prediksi:
-            # Buat kolom 'Periode' agar bisa di-sort (Contoh: 2024-03, 2024-04)
+            # Buat kolom 'Periode' untuk sorting (YYYY-MM)
             df_forecast['Periode'] = df_forecast['Tahun'].astype(str) + "-" + df_forecast['Bulan'].astype(str).str.zfill(2)
             
             # AGREGASI: Jumlahkan omzet berdasarkan Bulan & Tahun
-            # sort=False penting agar urutan bulan sesuai urutan waktu (bukan abjad)
             df_monthly = df_forecast.groupby(['Periode', 'Tahun', 'Bulan_Nama'], sort=False)[
                 ['Prediksi Pagi', 'Prediksi Siang', 'Prediksi Malam', 'Prediksi Total']
             ].sum().reset_index()
@@ -59,28 +52,25 @@ def show(model, df_historis, tanggal_pilihan, input_suhu, input_hujan):
             
             fig, ax = plt.subplots(figsize=(10, 5))
             
-            # X-Axis Label: Nama Bulan + Tahun (Misal: Mar 2024)
+            # Label X-Axis
             labels = df_monthly['Bulan_Nama'] + " " + df_monthly['Tahun'].astype(str)
             
             # Plot Bar Chart
             bars = ax.bar(labels, df_monthly['Prediksi Total'], color='#4361ee', width=0.6)
             
-            # Styling
             ax.set_ylabel('Total Omzet (Rp)', fontweight='bold')
             ax.grid(axis='y', linestyle='--', alpha=0.3)
             ax.spines['top'].set_visible(False)
             ax.spines['right'].set_visible(False)
             
-            # Format Axis Y jadi Rupiah
+            # Format Y Axis
             ax.get_yaxis().set_major_formatter(plt.FuncFormatter(lambda x, loc: "{:,}".format(int(x)).replace(',', '.')))
             
-            # Putar label bulan jika terlalu rapat
             plt.xticks(rotation=45, ha='right')
             
-            # Tambahkan Label Angka di Atas Batang
+            # Label Angka di Atas Bar
             for bar in bars:
                 height = bar.get_height()
-                # Format: 150Jt
                 label_text = f'{height/1000000:.1f} Jt' 
                 ax.text(bar.get_x() + bar.get_width()/2., height,
                         label_text,
@@ -88,20 +78,16 @@ def show(model, df_historis, tanggal_pilihan, input_suhu, input_hujan):
             
             st.pyplot(fig)
             
-            # --- TABEL RINCIAN BULANAN ---
+            # Tabel Detail
             st.markdown("### 📋 Rincian Angka per Bulan")
-            
-            # Format tampilan tabel
             df_show = df_monthly[['Bulan_Nama', 'Tahun', 'Prediksi Pagi', 'Prediksi Siang', 'Prediksi Malam', 'Prediksi Total']].copy()
-            cols_uang = ['Prediksi Pagi', 'Prediksi Siang', 'Prediksi Malam', 'Prediksi Total']
-            for c in cols_uang:
+            for c in ['Prediksi Pagi', 'Prediksi Siang', 'Prediksi Malam', 'Prediksi Total']:
                 df_show[c] = df_show[c].apply(lambda x: utils.format_rupiah(x))
-            
             st.dataframe(df_show, use_container_width=True)
 
-        # --- TAMPILAN 2: DETAIL HARIAN ---
+        # --- TAMPILAN 2: DETAIL HARIAN (GRAFIK GARIS/AREA) ---
         else:
-            # Ambil data hari pertama (Hari H)
+            # Ambil data hari pertama
             res = df_forecast.iloc[0]
             pred_total = res['Prediksi Total']
             
@@ -119,10 +105,8 @@ def show(model, df_historis, tanggal_pilihan, input_suhu, input_hujan):
             st.markdown("### 📈 Tren Harian (30 Hari ke Depan)")
             fig, ax = plt.subplots(figsize=(12, 5))
             
-            # Plot Total
             ax.plot(df_forecast['Tanggal'], df_forecast['Prediksi Total'], marker='o', markersize=4, color='#4361ee', label='Total Omzet')
             
-            # Area Shift (Stacked Area)
             ax.stackplot(df_forecast['Tanggal'], 
                          df_forecast['Prediksi Pagi'], 
                          df_forecast['Prediksi Siang'], 
@@ -136,11 +120,9 @@ def show(model, df_historis, tanggal_pilihan, input_suhu, input_hujan):
             ax.spines['top'].set_visible(False)
             ax.spines['right'].set_visible(False)
             
-            # Format Rupiah
             ax.get_yaxis().set_major_formatter(plt.FuncFormatter(lambda x, loc: "{:,}".format(int(x)).replace(',', '.')))
             
-            # Format Tanggal
-            ax.set_xticks(df_forecast['Tanggal'][::2]) # Tampilkan setiap 2 hari agar tidak numpuk
+            ax.set_xticks(df_forecast['Tanggal'][::2])
             ax.set_xticklabels([d.strftime('%d/%m') for d in df_forecast['Tanggal'][::2]], rotation=45)
                 
             st.pyplot(fig)

@@ -43,7 +43,7 @@ def load_resources():
     return model, df_db
 
 # --- HELPER AMBIL DATA CEPAT (OPTIMIZED) ---
-# Kita tidak lagi filter dataframe berulang kali, tapi pakai dictionary lookup
+# Mengambil data dari dictionary (O(1)) bukan filter dataframe (O(N))
 def get_val_fast(history_lookup, date_key, col, default):
     if date_key in history_lookup:
         val = history_lookup[date_key].get(col)
@@ -57,10 +57,9 @@ def generate_forecast_data(model, df_historis, start_date, base_suhu, base_hujan
     list_bulan = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agt", "Sep", "Okt", "Nov", "Des"]
     
     # 1. PERSIAPAN DATA CEPAT (PRE-COMPUTE)
-    # Ubah DataFrame ke Dictionary agar pencarian jadi O(1) alias instan
+    # Mengubah DataFrame menjadi Dictionary agar pencarian data masa lalu INSTAN
     history_lookup = {}
     if df_historis is not None:
-        # Kita set index tanggal agar bisa dicari berdasarkan tanggal
         temp_df = df_historis.set_index('Tanggal')
         # Ambil kolom yang relevan saja agar ringan
         cols_needed = [c for c in temp_df.columns if c in ['Suhu', 'Curah Hujan', 'Omzet Pagi', 'Omzet Siang', 'Omzet Malam', 'Total Omzet']]
@@ -78,7 +77,6 @@ def generate_forecast_data(model, df_historis, start_date, base_suhu, base_hujan
         is_wk = 1 if wd >= 5 else 0
         
         # 2. FITUR CUACA (Cek Lookup Dulu)
-        # Ambil dari lookup dictionary (cepat)
         curr_s = get_val_fast(history_lookup, tgt, 'Suhu', base_suhu)
         curr_h = get_val_fast(history_lookup, tgt, 'Curah Hujan', base_hujan)
         
@@ -99,11 +97,11 @@ def generate_forecast_data(model, df_historis, start_date, base_suhu, base_hujan
             for l in lags:
                 lag_date = tgt - pd.Timedelta(days=l)
                 
-                # Cek buffer prediksi (masa depan) -> O(1)
+                # Cek buffer prediksi (masa depan) -> Cepat
                 if lag_date in prediction_buffer:
                     val = prediction_buffer[lag_date][shift]
                 else:
-                    # Ambil dari history lookup -> O(1)
+                    # Ambil dari history lookup -> Cepat
                     val = get_val_fast(history_lookup, lag_date, shift, 5000000) 
                 
                 lag_values[f'{shift}_t-{l}'] = val
@@ -144,7 +142,7 @@ def generate_forecast_data(model, df_historis, start_date, base_suhu, base_hujan
         results.append({
             'Tanggal': tgt, 
             'Hari_Nama': list_hari[wd],
-            'Bulan': b,
+            'Bulan': b,                  # PENTING: Untuk grouping bulanan
             'Bulan_Nama': list_bulan[b-1], 
             'Tahun': tgt.year,
             'Prediksi Pagi': p_pagi,
