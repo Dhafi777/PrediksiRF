@@ -185,6 +185,6 @@ def show():
     _, col_btn, _ = st.columns([1, 2, 1])
     
     with col_btn:
-        if st.button("🚀 MULAI SEKARANG", type="primary", use_container_width=True):
+        if st.button(" MULAI SEKARANG", type="primary", use_container_width=True):
             st.session_state['landing_page_selesai'] = True
             st.rerun()
