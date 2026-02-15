@@ -98,23 +98,6 @@ def show(model, df_historis, tanggal_pilihan, input_suhu, input_hujan):
                 use_container_width=True
             )
 
-        # 2. DOWNLOAD CSV
-        csv_data = df_forecast.to_csv(index=False).encode('utf-8')
-        file_name_csv = f"Data_Mentah_{df_forecast['Tanggal'].iloc[0].strftime('%d%b%Y')}.csv"
-        
-        with col_dl2:
-            st.download_button(
-                label="Unduh CSV",
-                data=csv_data,
-                file_name=file_name_csv,
-                mime="text/csv",
-                use_container_width=True
-            )
-            
-        # 3. PRINT PDF
-        with col_dl3:
-            if st.button("Cetak PDF (Grafik)", use_container_width=True):
-                components.html("<script>window.print()</script>", height=0, width=0)
         
         st.markdown("---")
         
