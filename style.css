@@ -1,114 +1,176 @@
-/* --- 1. DEFINISI WARNA (SEMANTIC PALETTE) --- */
+/* Import Font yang Bersih & Professional (Open Sans mirip Vmedis) */
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap');
+
 :root {
-    --primary-color: #4361ee;       /* Biru Utama */
-    --success-color: #10b981;       /* Hijau (Bagus/Untung) */
-    --warning-color: #f59e0b;       /* Kuning (Waspada) */
-    --danger-color: #ef4444;        /* Merah (Buruk/Rugi) */
-    --neutral-bg: #f8f9fa;          /* Abu-abu Background */
-    --text-dark: #1e293b;           /* Hitam Teks */
-    --text-muted: #64748b;          /* Abu-abu Teks */
+    /* PALET WARNA APOTEK (VMEDIS STYLE) */
+    --primary: #009688;       /* Teal/Hijau Tosca Medis (Warna Utama) */
+    --primary-dark: #00796b;  /* Teal Gelap untuk Hover */
+    --secondary: #2c3e50;     /* Biru Tua/Navy (Sidebar/Header) */
+    --accent: #f39c12;        /* Oranye untuk Warning/Highlight */
+    --bg-app: #f1f5f9;        /* Abu-abu lembut (Anti-silau) */
+    --card-bg: #ffffff;       /* Putih bersih */
+    --text-main: #334155;     /* Dark Grey (Bukan hitam pekat) */
+    --text-light: #64748b;    /* Abu-abu teks */
+    --border-radius: 8px;     /* Sudut tidak terlalu bulat (Professional Look) */
+    --shadow: 0 2px 4px rgba(0,0,0,0.05); /* Bayangan tipis */
 }
 
+/* === GLOBAL SETTINGS === */
+html, body, [class*="css"] {
+    font-family: 'Open Sans', sans-serif;
+    color: var(--text-main);
+    background-color: var(--bg-app);
+}
+
+/* Background Aplikasi */
 .stApp {
-    background-color: #f0f2f5;
+    background-color: var(--bg-app);
 }
 
-/* --- 2. GAYA KARTU KPI (YANG HILANG SEBELUMNYA) --- */
+/* === SIDEBAR (Mirip Menu Kiri POS) === */
+[data-testid="stSidebar"] {
+    background-color: #ffffff;
+    border-right: 1px solid #e2e8f0;
+}
+
+[data-testid="stSidebar"] .stSelectbox label {
+    color: var(--secondary);
+    font-weight: 700;
+}
+
+/* === KPI CARD (KOTAK DATA) === */
 .kpi-card {
-    background-color: #ffffff !important; /* Wajib Putih */
-    border-radius: 10px;
+    background-color: var(--card-bg);
+    border-radius: var(--border-radius);
     padding: 20px;
     margin-bottom: 15px;
-    /* Efek Bayangan agar terlihat timbul (Card) */
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
-    border-left: 5px solid var(--primary-color); /* Default Border Biru */
+    box-shadow: var(--shadow);
+    border: 1px solid #e2e8f0;
+    border-top: 4px solid var(--primary); /* Aksen warna di atas kartu */
+    text-align: center;
     transition: transform 0.2s;
 }
 
 .kpi-card:hover {
-    transform: translateY(-3px); /* Efek naik saat mouse hover */
-    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
 
 .kpi-title {
-    font-size: 13px;
-    font-weight: 700;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-light);
     text-transform: uppercase;
-    color: var(--text-muted);
     letter-spacing: 0.5px;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
 }
 
 .kpi-value {
-    font-size: 26px;
-    font-weight: 800;
-    color: var(--text-dark);
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--secondary); /* Angka warna Biru Tua */
     margin-bottom: 5px;
 }
 
 .kpi-sub {
-    font-size: 12px;
-    color: var(--text-muted);
+    font-size: 0.8rem;
+    color: var(--text-light);
+    background-color: #f8fafc;
+    padding: 4px 8px;
+    border-radius: 4px;
+    display: inline-block;
 }
 
-/* Variasi Warna Border (Semantic) */
-.border-primary { border-left-color: var(--primary-color) !important; }
-.border-success { border-left-color: var(--success-color) !important; }
-.border-danger { border-left-color: var(--danger-color) !important; }
-.border-warning { border-left-color: var(--warning-color) !important; }
+/* Variasi Warna Border Atas Kartu */
+.kpi-card.border-primary { border-top-color: var(--primary); }  /* Hijau */
+.kpi-card.border-success { border-top-color: #27ae60; }         /* Hijau Tua */
+.kpi-card.border-warning { border-top-color: #f39c12; }         /* Oranye */
+.kpi-card.border-danger  { border-top-color: #e74c3c; }         /* Merah */
 
-/* Text Colors */
-.text-success { color: var(--success-color); font-weight: bold; }
-.text-danger { color: var(--danger-color); font-weight: bold; }
+/* === TOMBOL (BUTTONS) === */
+/* Tombol Utama (Primary) - Hijau Apotek */
+div.stButton > button:first-child {
+    background-color: var(--primary);
+    color: white;
+    border-radius: 6px;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    font-weight: 600;
+    box-shadow: 0 2px 4px rgba(0, 150, 136, 0.2);
+    transition: all 0.2s;
+}
 
-/* --- 3. GAYA TABEL (MODERN) --- */
+div.stButton > button:first-child:hover {
+    background-color: var(--primary-dark);
+    box-shadow: 0 4px 8px rgba(0, 150, 136, 0.3);
+}
+
+/* === TABEL (DATAFRAME) === */
 .styled-table {
     width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
+    border-collapse: collapse;
     margin: 20px 0;
-    font-size: 0.9em;
-    font-family: sans-serif;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-    border-radius: 8px;
-    overflow: hidden;
+    font-size: 0.9rem;
     background-color: white;
+    box-shadow: var(--shadow);
+    border-radius: var(--border-radius);
+    overflow: hidden;
 }
 
 .styled-table thead tr {
-    background-color: var(--primary-color);
+    background-color: var(--secondary); /* Header Tabel Biru Tua */
     color: white;
     text-align: left;
 }
 
 .styled-table th, .styled-table td {
     padding: 12px 15px;
-    border-bottom: 1px solid #eee;
+}
+
+.styled-table tbody tr {
+    border-bottom: 1px solid #f1f5f9;
 }
 
 .styled-table tbody tr:nth-of-type(even) {
-    background-color: #f9fafb;
+    background-color: #f8fafc; /* Zebra striping tipis */
 }
 
 .styled-table tbody tr:last-of-type {
-    border-bottom: 3px solid var(--primary-color);
+    border-bottom: 2px solid var(--primary);
 }
 
-/* Badge Status di Tabel */
-.badge-diff-pos {
-    background-color: #d1fae5; color: #065f46;
-    padding: 4px 8px; border-radius: 12px; font-size: 0.8em; font-weight: bold;
-}
-.badge-diff-neg {
-    background-color: #fee2e2; color: #991b1b;
-    padding: 4px 8px; border-radius: 12px; font-size: 0.8em; font-weight: bold;
+/* === HEADINGS === */
+h1, h2, h3 {
+    color: var(--secondary); /* Judul warna Biru Tua */
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 700;
 }
 
-/* Gaya Khusus Kotak Info (Halaman Input) */
-.info-box {
-    background-color: #fffbeb;
-    border-left: 5px solid #f59e0b;
-    padding: 15px;
-    border-radius: 5px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+/* Divider yang lebih halus */
+hr {
+    border-color: #e2e8f0;
+    margin: 1.5rem 0;
+}
+
+/* === CUSTOM INFO BOX (Pesan Error/Warning) === */
+.stAlert {
+    border-radius: 6px;
+    border: none;
+    box-shadow: var(--shadow);
+}
+
+/* === SCROLLBAR (Agar rapi) === */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
 }

@@ -1,11 +1,30 @@
 import streamlit as st
-import matplotlib.pyplot as plt
 import pandas as pd
 import utils
+import plotly.graph_objects as go
+import plotly.express as px
+from plotly.subplots import make_subplots
+
+# --- KONFIGURASI WARNA (Vmedis Style) ---
+COLOR_PAGI  = '#f1c40f'  # Kuning
+COLOR_SIANG = '#e67e22'  # Oranye
+COLOR_MALAM = '#2980b9'  # Biru
+COLOR_TOTAL = '#4361ee'  # Biru Utama
+COLOR_SUHU  = '#ef4444'  # Merah
+COLOR_HUJAN = '#10b981'  # Hijau
+COLOR_GRID  = '#ecf0f1'  # Abu grid
 
 def show(model, df_historis, tanggal_pilihan, input_suhu, input_hujan, mape_text):
-    st.markdown(f"## 📊 Visualisasi Tren & Cuaca")
-    st.write(f"Proyeksi 30 hari ke depan mulai: **{tanggal_pilihan.strftime('%d-%m-%Y')}**")
+    st.markdown(f"## Visualisasi Tren & Cuaca")
+    
+    # --- PENJELASAN SINGKAT & BAKU ---
+    st.markdown("""
+    Halaman ini menyajikan analisis grafis untuk membantu Anda memahami pola penjualan selama **30 hari ke depan**.
+    Anda dapat melihat tren pergerakan omzet per shift, serta hubungan antara kondisi cuaca (suhu dan curah hujan) terhadap total pendapatan apotek.
+    """)
+    
+    st.info(f"Proyeksi analisis dimulai dari tanggal: **{tanggal_pilihan.strftime('%d-%m-%Y')}**")
+    
     st.markdown("---")
 
     # Generate Data (30 Hari)
@@ -24,87 +43,135 @@ def show(model, df_historis, tanggal_pilihan, input_suhu, input_hujan, mape_text
 
     st.write("")
 
-    # --- GRAFIK 1: TREN PER SHIFT (Pagi vs Siang vs Malam) ---
-    st.markdown("### 📈 Tren Omzet per Shift")
-    fig, ax = plt.subplots(figsize=(12, 5))
+    # --- GRAFIK 1: TREN PER SHIFT (INTERAKTIF) ---
+    st.markdown("### Tren Omzet per Shift")
+    st.caption("Grafik di bawah menunjukkan perbandingan performa penjualan antara shift Pagi, Siang, dan Malam.")
     
-    ax.plot(df_viz['Tanggal'], df_viz['Prediksi Pagi'], marker='.', label='Pagi', color='#eab308', linewidth=2)
-    ax.plot(df_viz['Tanggal'], df_viz['Prediksi Siang'], marker='.', label='Siang', color='#ea580c', linewidth=2)
-    ax.plot(df_viz['Tanggal'], df_viz['Prediksi Malam'], marker='.', label='Malam', color='#1d4ed8', linewidth=2)
+    fig = go.Figure()
+
+    # Shift Pagi
+    fig.add_trace(go.Scatter(
+        x=df_viz['Tanggal'], y=df_viz['Prediksi Pagi'],
+        mode='lines+markers', name='Pagi',
+        line=dict(color=COLOR_PAGI, width=2),
+        marker=dict(size=6),
+        hovertemplate='Pagi: <b>Rp %{y:,.0f}</b><extra></extra>'
+    ))
     
-    ax.set_ylabel('Omzet (Rupiah)')
-    ax.legend()
-    ax.grid(True, linestyle='--', alpha=0.3)
-    ax.spines['top'].set_visible(False)
-    ax.spines['right'].set_visible(False)
+    # Shift Siang
+    fig.add_trace(go.Scatter(
+        x=df_viz['Tanggal'], y=df_viz['Prediksi Siang'],
+        mode='lines+markers', name='Siang',
+        line=dict(color=COLOR_SIANG, width=2),
+        marker=dict(size=6),
+        hovertemplate='Siang: <b>Rp %{y:,.0f}</b><extra></extra>'
+    ))
     
-    # Format Rupiah di Axis Y
-    ax.get_yaxis().set_major_formatter(plt.FuncFormatter(lambda x, loc: "{:,}".format(int(x)).replace(',', '.')))
+    # Shift Malam
+    fig.add_trace(go.Scatter(
+        x=df_viz['Tanggal'], y=df_viz['Prediksi Malam'],
+        mode='lines+markers', name='Malam',
+        line=dict(color=COLOR_MALAM, width=2),
+        marker=dict(size=6),
+        hovertemplate='Malam: <b>Rp %{y:,.0f}</b><extra></extra>'
+    ))
+
+    fig.update_layout(
+        plot_bgcolor='white',
+        height=450,
+        hovermode="x unified",
+        xaxis=dict(showgrid=False, title='Tanggal'),
+        yaxis=dict(title='Omzet (Rp)', gridcolor=COLOR_GRID, tickprefix="Rp "),
+        legend=dict(orientation="h", y=1.1)
+    )
     
-    st.pyplot(fig)
+    st.plotly_chart(fig, use_container_width=True)
     
     st.write("")
+    st.markdown("---")
     
-    # --- GRAFIK 2 & 3: KORELASI CUACA (DIKEMBALIKAN) ---
-    # Kita bandingkan 'Prediksi Total' vs Suhu/Hujan
-    
+    # --- GRAFIK 2 & 3: KORELASI CUACA (INTERAKTIF DUAL AXIS) ---
+    st.markdown("### Analisis Dampak Cuaca")
+    st.caption("Melihat korelasi atau hubungan antara perubahan cuaca (Suhu/Hujan) dengan naik-turunnya omzet.")
+
     col_g1, col_g2 = st.columns(2)
     
     # KORELASI SUHU
     with col_g1:
-        st.markdown("#### 🌡️ Total Omzet vs Suhu")
-        fig2, ax2 = plt.subplots(figsize=(8, 5))
+        st.markdown("#### Total Omzet vs Suhu")
         
-        # Garis 1: Total Omzet
-        line1 = ax2.plot(df_viz['Tanggal'], df_viz['Prediksi Total'], color='#4361ee', label='Total Omzet')
-        ax2.set_ylabel("Omzet", color='#4361ee', fontweight='bold')
-        ax2.tick_params(axis='y', labelcolor='#4361ee')
-        ax2.get_yaxis().set_major_formatter(plt.FuncFormatter(lambda x, loc: "{:,}".format(int(x)).replace(',', '.')))
+        # Dual Axis Chart
+        fig2 = make_subplots(specs=[[{"secondary_y": True}]])
+
+        # Axis 1: Omzet
+        fig2.add_trace(
+            go.Scatter(x=df_viz['Tanggal'], y=df_viz['Prediksi Total'], name="Omzet",
+                       line=dict(color=COLOR_TOTAL, width=3)),
+            secondary_y=False,
+        )
+
+        # Axis 2: Suhu
+        fig2.add_trace(
+            go.Scatter(x=df_viz['Tanggal'], y=df_viz['Suhu'], name="Suhu (°C)",
+                       line=dict(color=COLOR_SUHU, width=2, dash='dot')),
+            secondary_y=True,
+        )
+
+        fig2.update_layout(
+            plot_bgcolor='white',
+            height=400,
+            hovermode="x unified",
+            showlegend=True,
+            legend=dict(orientation="h", y=1.1)
+        )
         
-        # Garis 2: Suhu (Sumbu Kanan)
-        ax2_twin = ax2.twinx()
-        line2 = ax2_twin.plot(df_viz['Tanggal'], df_viz['Suhu'], color='#ef4444', linestyle='--', label='Suhu')
-        ax2_twin.set_ylabel("Suhu (°C)", color='#ef4444', fontweight='bold')
-        ax2_twin.tick_params(axis='y', labelcolor='#ef4444')
-        
-        # Legend
-        lns = line1 + line2
-        labs = [l.get_label() for l in lns]
-        ax2.legend(lns, labs, loc='upper center', bbox_to_anchor=(0.5, 1.15), ncol=2)
-        ax2.grid(True, linestyle='--', alpha=0.3)
-        ax2.set_xticks([]) 
-        st.pyplot(fig2)
+        fig2.update_yaxes(title_text="Omzet (Rp)", secondary_y=False, showgrid=False)
+        fig2.update_yaxes(title_text="Suhu (°C)", secondary_y=True, showgrid=False)
+
+        st.plotly_chart(fig2, use_container_width=True)
 
     # KORELASI HUJAN
     with col_g2:
-        st.markdown("#### 🌧️ Total Omzet vs Hujan")
-        fig3, ax3 = plt.subplots(figsize=(8, 5))
+        st.markdown("#### Total Omzet vs Hujan")
         
-        # Garis 1: Total Omzet
-        line3 = ax3.plot(df_viz['Tanggal'], df_viz['Prediksi Total'], color='#4361ee', label='Total Omzet')
-        ax3.set_ylabel("Omzet", color='#4361ee', fontweight='bold')
-        ax3.tick_params(axis='y', labelcolor='#4361ee')
-        ax3.get_yaxis().set_major_formatter(plt.FuncFormatter(lambda x, loc: "{:,}".format(int(x)).replace(',', '.')))
+        # Dual Axis Chart
+        fig3 = make_subplots(specs=[[{"secondary_y": True}]])
+
+        # Axis 1: Omzet
+        fig3.add_trace(
+            go.Scatter(x=df_viz['Tanggal'], y=df_viz['Prediksi Total'], name="Omzet",
+                       line=dict(color=COLOR_TOTAL, width=3)),
+            secondary_y=False,
+        )
+
+        # Axis 2: Hujan
+        fig3.add_trace(
+            go.Scatter(x=df_viz['Tanggal'], y=df_viz['Hujan'], name="Hujan (mm)",
+                       line=dict(color=COLOR_HUJAN, width=2, dash='dot')),
+            secondary_y=True,
+        )
+
+        fig3.update_layout(
+            plot_bgcolor='white',
+            height=400,
+            hovermode="x unified",
+            showlegend=True,
+            legend=dict(orientation="h", y=1.1)
+        )
         
-        # Garis 2: Hujan (Sumbu Kanan)
-        ax3_twin = ax3.twinx()
-        line4 = ax3_twin.plot(df_viz['Tanggal'], df_viz['Hujan'], color='#10b981', linestyle='--', label='Hujan')
-        ax3_twin.set_ylabel("Hujan (mm)", color='#10b981', fontweight='bold')
-        ax3_twin.tick_params(axis='y', labelcolor='#10b981')
-        
-        # Legend
-        lns2 = line3 + line4
-        labs2 = [l.get_label() for l in lns2]
-        ax3.legend(lns2, labs2, loc='upper center', bbox_to_anchor=(0.5, 1.15), ncol=2)
-        ax3.grid(True, linestyle='--', alpha=0.3)
-        ax3.set_xticks([]) 
-        st.pyplot(fig3)
+        fig3.update_yaxes(title_text="Omzet (Rp)", secondary_y=False, showgrid=False)
+        fig3.update_yaxes(title_text="Hujan (mm)", secondary_y=True, showgrid=False)
+
+        st.plotly_chart(fig3, use_container_width=True)
     
     st.markdown("---")
     
-    # --- FEATURE IMPORTANCE ---
-    st.markdown("### 🧠 Faktor Pengaruh (Feature Importance)")
-    st.write("Variabel mana yang paling mempengaruhi prediksi (Rata-rata pengaruh ke semua shift).")
+    # --- FEATURE IMPORTANCE (INTERAKTIF HORIZONTAL BAR) ---
+    st.markdown("### Faktor Pengaruh (Feature Importance)")
+    st.markdown("""
+    Grafik ini menunjukkan **variabel apa yang paling dominan** dalam menentukan hasil prediksi model.
+    Semakin panjang batang grafik, semakin besar pengaruh variabel tersebut terhadap naik-turunnya omzet.
+    """)
     
     feature_names = [
         'Hari', 'Bulan', 'Minggu ke', 'Weekend',
@@ -123,26 +190,25 @@ def show(model, df_historis, tanggal_pilihan, input_suhu, input_hujan, mape_text
             df_imp = pd.DataFrame({'Fitur': feature_names, 'Penting': importances})
             df_imp = df_imp.sort_values('Penting', ascending=True)
             
-            fig4, ax4 = plt.subplots(figsize=(10, 8))
-            
-            # Warna Bar
-            bars = ax4.barh(df_imp['Fitur'], df_imp['Penting'], color='#4361ee', alpha=0.8)
-            
-            # Label Angka
-            for bar in bars:
-                width = bar.get_width()
-                ax4.text(width + 0.001, bar.get_y() + bar.get_height()/2, 
-                         f'{width:.1%}', 
-                         ha='left', va='center', fontsize=9, color='#1e293b')
+            # Plotly Horizontal Bar
+            fig4 = go.Figure(go.Bar(
+                x=df_imp['Penting'],
+                y=df_imp['Fitur'],
+                orientation='h',
+                marker=dict(color='#4361ee', line=dict(color='#2c3e50', width=0)),
+                text=[f"{val:.1%}" for val in df_imp['Penting']],
+                textposition='auto'
+            ))
 
-            ax4.set_xlabel('Score Kepentingan')
-            ax4.set_xlim(0, max(importances)*1.2)
+            fig4.update_layout(
+                plot_bgcolor='white',
+                height=600,
+                xaxis=dict(showgrid=True, gridcolor=COLOR_GRID, title="Skor Kepentingan"),
+                yaxis=dict(showgrid=False),
+                margin=dict(l=0, r=0, t=0, b=0)
+            )
             
-            ax4.spines['top'].set_visible(False)
-            ax4.spines['right'].set_visible(False)
-            ax4.grid(axis='x', linestyle='--', alpha=0.3)
-            
-            st.pyplot(fig4)
+            st.plotly_chart(fig4, use_container_width=True)
         else:
             st.error(f"Mismatch Error: Model memiliki {len(importances)} fitur, tetapi daftar nama ada {len(feature_names)}.")
     else:
