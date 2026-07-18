@@ -61,11 +61,9 @@ def get_daily_smart_insight(row, input_hujan, df_historis):
         
     kategori = "RENDAH" if pred_total <= q33 else ("SEDANG" if pred_total <= q66 else "TINGGI")
     warna_kategori = "#ef4444" if kategori == "RENDAH" else ("#f59e0b" if kategori == "SEDANG" else "#10b981")
-    status_tren = "NAIK" if pred_total > avg_omzet else "TURUN"
+    status_tren = "MENINGKAT" if pred_total > avg_omzet else "MENURUN"
     
-    is_weekend = target_date.weekday() >= 5
     minggu_ke = (target_date.day - 1) // 7 + 1
-    
     cards_data = []
     
     if minggu_ke == 1 or minggu_ke == 5: 
@@ -95,8 +93,7 @@ def get_daily_smart_insight(row, input_hujan, df_historis):
     cards_html = ""
     for title, desc, color in cards_data: 
         cards_html += f"""<div style="flex: 1 1 calc(33.333% - 15px); min-width: 220px; background: white; border: 1px solid #e2e8f0; border-top: 4px solid {color}; border-radius: 8px; padding: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.04);"><h5 style="margin: 0 0 8px 0; color: #1e293b; font-size: 0.95rem;">{title}</h5><p style="margin: 0; font-size: 0.85rem; color: #64748b; line-height: 1.5;">{desc}</p></div>"""
-    
-    return f"""<div style="background-color: #f8fafc; border: 1px solid #cbd5e1; border-left: 6px solid {warna_kategori}; padding: 20px; border-radius: 8px; margin-top: 15px;"><h4 style="margin-top: 0; margin-bottom: 15px; color: #1e293b; display: flex; align-items: center; font-family: sans-serif;">Hasil Analisis Algoritma Prediksi</h4><div style="background: white; border: 1px solid #e2e8f0; padding: 15px; border-radius: 6px; margin-bottom: 20px; font-family: sans-serif;"><span style="font-size: 1.05rem; color: #334155;">Pada tanggal <b>{target_date.strftime('%d %B %Y')}</b>, indikator penjualan diproyeksikan <b>{status_tren}</b> dengan klasifikasi tingkat pendapatan:</span><span style="background-color: {warna_kategori}20; color: {warna_kategori}; font-weight: 800; padding: 6px 14px; border-radius: 20px; margin-left: 8px; font-size: 1rem; border: 1px solid {warna_kategori}50; display: inline-block; margin-top: 5px;">{kategori}</span></div><p style="font-size: 0.95rem; color: #475569; margin-bottom: 12px; font-weight: 600; font-family: sans-serif;">Faktor Determinasi Parameter dan Rekomendasi:</p><div style="display: flex; gap: 15px; flex-wrap: wrap; font-family: sans-serif;">{cards_html}</div></div>"""
+    return f"""<div style="background-color: #f8fafc; border: 1px solid #cbd5e1; border-left: 6px solid {warna_kategori}; padding: 20px; border-radius: 8px; margin-top: 15px;"><h4 style="margin-top: 0; margin-bottom: 15px; color: #1e293b; display: flex; align-items: center; font-family: sans-serif;">Hasil Analisis Algoritma Prediksi</h4><div style="background: white; border: 1px solid #e2e8f0; padding: 15px; border-radius: 6px; margin-bottom: 20px; font-family: sans-serif;"><span style="font-size: 1.05rem; color: #334155;">Pada <b>{target_date.strftime('%d %B %Y')}</b>, tren indikator pendapatan diproyeksikan <b>{status_tren}</b> dengan klasifikasi performa:</span><span style="background-color: {warna_kategori}20; color: {warna_kategori}; font-weight: 800; padding: 6px 14px; border-radius: 20px; margin-left: 8px; font-size: 1rem; border: 1px solid {warna_kategori}50; display: inline-block; margin-top: 5px;">{kategori}</span></div><p style="font-size: 0.95rem; color: #475569; margin-bottom: 12px; font-weight: 600; font-family: sans-serif;">Faktor Determinasi Parameter dan Rekomendasi Manajerial:</p><div style="display: flex; gap: 15px; flex-wrap: wrap; font-family: sans-serif;">{cards_html}</div></div>"""
 
 # ==============================================================================
 # FUNGSI 2: ANALISIS MINGGUAN
@@ -136,8 +133,7 @@ def get_weekly_smart_insight(df_forecast, df_historis):
     cards_html = ""
     for title, desc, color in cards_data: 
         cards_html += f"""<div style="flex: 1 1 calc(33.333% - 15px); min-width: 220px; background: white; border: 1px solid #e2e8f0; border-top: 4px solid {color}; border-radius: 8px; padding: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.04);"><h5 style="margin: 0 0 8px 0; color: #1e293b; font-size: 0.95rem;">{title}</h5><p style="margin: 0; font-size: 0.85rem; color: #64748b; line-height: 1.5;">{desc}</p></div>"""
-    
-    return f"""<div style="background-color: #f8fafc; border: 1px solid #cbd5e1; border-left: 6px solid {warna_kategori}; padding: 20px; border-radius: 8px; margin-top: 15px;"><h4 style="margin-top: 0; margin-bottom: 15px; color: #1e293b; display: flex; align-items: center; font-family: sans-serif;">Hasil Analisis Algoritma Prediksi (Mingguan)</h4><div style="background: white; border: 1px solid #e2e8f0; padding: 15px; border-radius: 6px; margin-bottom: 20px; font-family: sans-serif;"><span style="font-size: 1.05rem; color: #334155;">Pada periode observasi <b>{tgl_awal} - {tgl_akhir}</b>, tren indikator pendapatan diproyeksikan <b>{status_tren}</b> dengan parameter performa:</span><span style="background-color: {warna_kategori}20; color: {warna_kategori}; font-weight: 800; padding: 6px 14px; border-radius: 20px; margin-left: 8px; font-size: 1rem; border: 1px solid {warna_kategori}50; display: inline-block; margin-top: 5px;">{kategori}</span></div><p style="font-size: 0.95rem; color: #475569; margin-bottom: 12px; font-weight: 600; font-family: sans-serif;">Faktor Determinasi Parameter dan Rekomendasi:</p><div style="display: flex; gap: 15px; flex-wrap: wrap; font-family: sans-serif;">{cards_html}</div></div>"""
+    return f"""<div style="background-color: #f8fafc; border: 1px solid #cbd5e1; border-left: 6px solid {warna_kategori}; padding: 20px; border-radius: 8px; margin-top: 15px;"><h4 style="margin-top: 0; margin-bottom: 15px; color: #1e293b; display: flex; align-items: center; font-family: sans-serif;">Hasil Analisis Algoritma Prediksi (Mingguan)</h4><div style="background: white; border: 1px solid #e2e8f0; padding: 15px; border-radius: 6px; margin-bottom: 20px; font-family: sans-serif;"><span style="font-size: 1.05rem; color: #334155;">Pada periode observasi <b>{tgl_awal} - {tgl_akhir}</b>, tren indikator pendapatan diproyeksikan <b>{status_tren}</b> dengan parameter performa:</span><span style="background-color: {warna_kategori}20; color: {warna_kategori}; font-weight: 800; padding: 6px 14px; border-radius: 20px; margin-left: 8px; font-size: 1rem; border: 1px solid {warna_kategori}50; display: inline-block; margin-top: 5px;">{kategori}</span></div><p style="font-size: 0.95rem; color: #475569; margin-bottom: 12px; font-weight: 600; font-family: sans-serif;">Faktor Determinasi Parameter dan Rekomendasi Manajerial:</p><div style="display: flex; gap: 15px; flex-wrap: wrap; font-family: sans-serif;">{cards_html}</div></div>"""
 
 # ==============================================================================
 # FUNGSI 3: ANALISIS BULANAN
@@ -159,7 +155,7 @@ def get_monthly_smart_insight(df_forecast, df_historis):
         
     kategori = "RENDAH" if pred_total <= q33 else ("SEDANG" if pred_total <= q66 else "TINGGI")
     warna_kategori = "#ef4444" if kategori == "RENDAH" else ("#f59e0b" if kategori == "SEDANG" else "#10b981")
-    status_tren = "Naik" if pred_total > avg_omzet else "Turun"
+    status_tren = "MENINGKAT" if pred_total > avg_omzet else "MENURUN"
     
     cards_data = []
     
@@ -185,7 +181,6 @@ def get_monthly_smart_insight(df_forecast, df_historis):
     cards_html = ""
     for title, desc, color in cards_data: 
         cards_html += f"""<div style="flex: 1 1 calc(33.333% - 15px); min-width: 220px; background: white; border: 1px solid #e2e8f0; border-top: 4px solid {color}; border-radius: 8px; padding: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.04);"><h5 style="margin: 0 0 8px 0; color: #1e293b; font-size: 0.95rem;">{title}</h5><p style="margin: 0; font-size: 0.85rem; color: #64748b; line-height: 1.5;">{desc}</p></div>"""
-    
     return f"""<div style="background-color: #f8fafc; border: 1px solid #cbd5e1; border-left: 6px solid {warna_kategori}; padding: 20px; border-radius: 8px; margin-top: 15px;"><h4 style="margin-top: 0; margin-bottom: 15px; color: #1e293b; display: flex; align-items: center; font-family: sans-serif;">Hasil Analisis Algoritma Prediksi (Bulanan)</h4><div style="background: white; border: 1px solid #e2e8f0; padding: 15px; border-radius: 6px; margin-bottom: 20px; font-family: sans-serif;"><span style="font-size: 1.05rem; color: #334155;">Pada periode bulanan <b>{bulan_nama} {tahun}</b>, tren pertumbuhan diproyeksikan <b>{status_tren}</b> dengan hasil komparasi kuartil bernilai:</span><span style="background-color: {warna_kategori}20; color: {warna_kategori}; font-weight: 800; padding: 6px 14px; border-radius: 20px; margin-left: 8px; font-size: 1rem; border: 1px solid {warna_kategori}50; display: inline-block; margin-top: 5px;">{kategori}</span></div><p style="font-size: 0.95rem; color: #475569; margin-bottom: 12px; font-weight: 600; font-family: sans-serif;">Faktor Determinasi Parameter dan Rekomendasi Manajerial:</p><div style="display: flex; gap: 15px; flex-wrap: wrap; font-family: sans-serif;">{cards_html}</div></div>"""
 
 # ==============================================================================
@@ -203,7 +198,7 @@ def get_yearly_smart_insight(df_monthly, tahun, df_historis):
         
     kategori = "RENDAH" if pred_total <= q33 else ("SEDANG" if pred_total <= q66 else "TINGGI")
     warna_kategori = "#ef4444" if kategori == "RENDAH" else ("#f59e0b" if kategori == "SEDANG" else "#10b981")
-    status_tren = "NAIK" if pred_total > avg_omzet else "TURUN"
+    status_tren = "MENINGKAT" if pred_total > avg_omzet else "MENURUN"
     
     cards_data = []
     
@@ -222,7 +217,6 @@ def get_yearly_smart_insight(df_monthly, tahun, df_historis):
     cards_html = ""
     for title, desc, color in cards_data: 
         cards_html += f"""<div style="flex: 1 1 calc(33.333% - 15px); min-width: 220px; background: white; border: 1px solid #e2e8f0; border-top: 4px solid {color}; border-radius: 8px; padding: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.04);"><h5 style="margin: 0 0 8px 0; color: #1e293b; font-size: 0.95rem;">{title}</h5><p style="margin: 0; font-size: 0.85rem; color: #64748b; line-height: 1.5;">{desc}</p></div>"""
-    
     return f"""<div style="background-color: #f8fafc; border: 1px solid #cbd5e1; border-left: 6px solid {warna_kategori}; padding: 20px; border-radius: 8px; margin-top: 15px;"><h4 style="margin-top: 0; margin-bottom: 15px; color: #1e293b; display: flex; align-items: center; font-family: sans-serif;">Hasil Analisis Algoritma Prediksi (Tahunan)</h4><div style="background: white; border: 1px solid #e2e8f0; padding: 15px; border-radius: 6px; margin-bottom: 20px; font-family: sans-serif;"><span style="font-size: 1.05rem; color: #334155;">Sepanjang periode pengamatan tahun <b>{tahun}</b>, hasil agregasi estimasi mengindikasikan laju pertumbuhan yang <b>{status_tren}</b> dengan klasifikasi performa:</span><span style="background-color: {warna_kategori}20; color: {warna_kategori}; font-weight: 800; padding: 6px 14px; border-radius: 20px; margin-left: 8px; font-size: 1rem; border: 1px solid {warna_kategori}50; display: inline-block; margin-top: 5px;">{kategori}</span></div><p style="font-size: 0.95rem; color: #475569; margin-bottom: 12px; font-weight: 600; font-family: sans-serif;">Sintesis Evaluasi Makro dan Langkah Operasional:</p><div style="display: flex; gap: 15px; flex-wrap: wrap; font-family: sans-serif;">{cards_html}</div></div>"""
 
 # ==============================================================================
@@ -283,7 +277,14 @@ def show(model, df_historis, tanggal_pilihan, input_suhu, input_hujan):
         excel_data = to_excel(df_forecast)
         file_name_xl = f"Laporan_Prediksi_{df_forecast['Tanggal'].iloc[0].strftime('%d%b%Y')}.xlsx"
         
-        with col_dl1:
+        with col_dl1: 
+            st.download_button(label="Unduh Repositori Laporan (.xlsx)", data=excel_data, file_name=file_name_xl, mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", use_container_width=True)
+        csv_data = df_forecast.to_csv(index=False).encode('utf-8')
+        file_name_csv = f"Data_Ekstraksi_Mentah_{df_forecast['Tanggal'].iloc[0].strftime('%d%b%Y')}.csv"
+        
+        with col_dl2: 
+            st.download_button(label="Unduh Repositori Format .CSV", data=csv_data, file_name=file_name_csv, mime="text/csv", use_container_width=True)
+        with col_dl3:
             if st.button("Cetak Halaman (Termasuk Visualisasi)", use_container_width=True): 
                 components.html("<script>window.print()</script>", height=0, width=0)
         
@@ -324,6 +325,33 @@ def show(model, df_historis, tanggal_pilihan, input_suhu, input_hujan):
             fig.add_trace(go.Scatter(x=shifts, y=values_jt, mode='lines+markers', line=dict(color='gray', width=2, dash='dot'), hoverinfo='skip'))
             fig.update_layout(plot_bgcolor='white', height=400, yaxis=dict(title='Skala Estimasi (Juta Rupiah)', gridcolor=COLOR_GRID), showlegend=False)
             st.plotly_chart(fig, use_container_width=True)
+
+            # ------------------------------------------------------------------
+            # INTEGRASI METODE SHAP (EXPLAINABLE AI)
+            # ------------------------------------------------------------------
+            st.markdown("---")
+            st.markdown("### Analisis Faktor Determinan Prediksi Berdasarkan Model SHAP (Explainable AI)")
+            
+            st.info("""
+            **Interpretasi Akademis Visualisasi Waterfall Plot:**
+            Grafik di bawah ini mendekomposisi nilai estimasi final yang dihasilkan oleh model Random Forest. 
+            Indikator berwarna **Merah (Positif)** mendeskripsikan variabel yang memberikan dorongan ekskalasi terhadap nilai estimasi (membuat prediksi naik). 
+            Sebaliknya, indikator berwarna **Biru (Negatif)** merepresentasikan variabel yang menekan atau mengurangi nilai ekspektasi (membuat prediksi turun). 
+            Nilai dasar (Base Value/E[f(X)]) adalah rata-rata historis sistem, sedangkan f(x) adalah nilai kalkulasi akhir algoritma.
+            """)
+            
+            try:
+                with st.spinner("Menginisialisasi algoritma interpretasi SHAP..."):
+                    feature_row, feature_names = utils.extract_single_day_features(
+                        df_historis, row['Tanggal'], input_suhu, input_hujan
+                    )
+                    
+                    # Memanggil fungsi render SHAP yang kini mengembalikan nilai fig secara eksplisit
+                    fig_shap = utils.generate_shap_waterfall(model, feature_row, feature_names)
+                    st.pyplot(fig_shap, use_container_width=True) 
+                    
+            except Exception as e:
+                st.error(f"Terjadi interupsi dalam proses rendering modul SHAP. Mohon pastikan pustaka 'shap' telah terinstal. Rincian kendala teknis: {e}")
 
         # =========================================================
         # TAMPILAN 2: PER MINGGU
@@ -457,7 +485,7 @@ def show(model, df_historis, tanggal_pilihan, input_suhu, input_hujan):
             # GRAFIK 2: HEATMAP LINTAS TAHUN
             # ------------------------------------------------------------------
             st.markdown("---")
-            st.markdown(f"### 2. Heatmap")
+            st.markdown(f"### 2. Komparasi Matriks Korelasi Kinerja Pola Musiman Lintas Waktu")
             st.caption(f"Model matriks berikut memfasilitasi proses inspeksi visual terhadap signifikansi pergeseran pola pada variabel bulan yang sama antar beberapa tahun historis. Kategorisasi variabel **MENINGKAT/MENURUN** diterapkan pada output algoritma Prediksi ({tahun}), sedangkan pencatatan historis dipertahankan dengan luaran nilai numerik absolut.")
 
             bulan_map = {1: 'Januari', 2: 'Februari', 3: 'Maret', 4: 'April', 5: 'Mei', 6: 'Juni', 
@@ -515,9 +543,9 @@ def show(model, df_historis, tanggal_pilihan, input_suhu, input_hujan):
                             text_row.append("-")
                         elif label_tahun == f"{tahun} (Prediksi Model AI)":
                             if val > avg_month_omzet_jt:
-                                text_row.append("NAIK")
+                                text_row.append("MENINGKAT")
                             else:
-                                text_row.append("TURUN")
+                                text_row.append("MENURUN")
                         else:
                             text_row.append(f"{val:.1f}") 
                     text_data_heat.append(text_row)
@@ -556,7 +584,7 @@ def show(model, df_historis, tanggal_pilihan, input_suhu, input_hujan):
             # GRAFIK 3: MULTI-LINE CHART
             # ------------------------------------------------------------------
             st.markdown("---")
-            st.markdown(f"### 3. Seasonal (Year-over-Year Analysis)")
+            st.markdown(f"### 3. Komparasi Pola Musiman Historis Lintas Tahun (Year-over-Year Analysis)")
             st.caption("Visualisasi berbasis grafik garis ini dirancang untuk mensimulasikan korelasi serta signifikansi distribusi dari fluktuasi data kronologis guna mengidentifikasi konsistensi tren indikator operasional secara siklis tahunan.")
 
             seasonal_data = []
@@ -614,4 +642,4 @@ def show(model, df_historis, tanggal_pilihan, input_suhu, input_hujan):
                 st.dataframe(df_monthly[['Bulan_Nama', 'Prediksi Pagi', 'Prediksi Siang', 'Prediksi Malam', 'Prediksi Total']].style.format({'Prediksi Pagi': "Rp {:,.0f}", 'Prediksi Siang': "Rp {:,.0f}", 'Prediksi Malam': "Rp {:,.0f}", 'Prediksi Total': "Rp {:,.0f}"}), use_container_width=True)
 
     else:
-        st.info("Sistem standby. Harap tentukan spesifikasi waktu serta parameter cuaca yang relevan sebelum melakukan proses eksekusi prediksi.")
+        st.info("Sistem standby. Harap tentukan spesifikasi waktu serta parameter meteorologi yang relevan sebelum melakukan proses inisiasi kalkulasi prediksi algoritma.")
